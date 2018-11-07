@@ -15,18 +15,17 @@
 		</div>
 		<table class="main-block__table">
 			<caption>Persons</caption>
-			<tr class="table-tr" id="0">
-				<th>id</th>
-				<th>Firstname</th>
-				<th>Lastname</th> 
-				<th>Age</th>
-			</tr>
-			<tr class="table-tr" id="1">
-				<td>1</td>
-				<td>Yana</td>
-				<td>Bondareva</td>
-				<td>22</td>
-			</tr>
+			<thead>
+				<tr class="table-tr">
+					<th>id</th>
+					<th>Firstname</th>
+					<th>Lastname</th> 
+					<th>Age</th>
+				</tr>
+			</thead>
+			<tbody class="main-block__tbody">
+
+			</tbody>
 		</table>
 	</div>
 
@@ -52,9 +51,18 @@
 			<h1>Delete person</h1>
 			<div class="changes-block__form-control">
 				Enter id:
-				<input type="text" class="form-control-input">
+				<input type="text" class="form-control-input id-delete">
 			</div>
 			<button class="changes-block__btn btn-deletefromtable">Delete</button>
+		</div>
+
+		<div class="changes-block__elem-block update-enter-id">
+			<h1>Enter id of person</h1>
+			<div class="changes-block__form-control">
+				Enter id:
+				<input type="text" class="form-control-input id-to-update">
+			</div>
+			<button class="changes-block__btn btn-next">Next</button>
 		</div>
 
 		<div class="changes-block__elem-block update">
@@ -74,7 +82,7 @@
 			<button class="changes-block__btn btn-updatetable">Update</button>
 		</div>
 	</div>
-
+	<script src="src/libs/dexie/dist/dexie.js"></script> 
 	<script src="src/js/script.js"></script>
 </body>
 </html>
