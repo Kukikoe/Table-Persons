@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<link href="src/css/style.css" rel="stylesheet">
+</head>
+<body>
+	<div class="main-block">
+		<div class="main-block__buttons">
+			<button class="btn btn-read">Read</button>
+			<button class="btn btn-add">Add</button>
+			<button class="btn btn-delete">Delete</button>
+			<button class="btn btn-update">Update</button>	
+		</div>
+		<table class="main-block__table">
+			<caption>Persons</caption>
+			<tr class="table-tr" id="0">
+				<th>id</th>
+				<th>Firstname</th>
+				<th>Lastname</th> 
+				<th>Age</th>
+			</tr>
+			<tr class="table-tr" id="1">
+				<td>1</td>
+				<td>Yana</td>
+				<td>Bondareva</td>
+				<td>22</td>
+			</tr>
+		</table>
+	</div>
+
+	<div class="changes-block">
+		<div class="changes-block__elem-block add">
+			<h1>Add person</h1>
+			<div class="changes-block__form-control">
+				Enter Firstname:
+				<input type="text" class="form-control-input name">
+			</div>
+			<div class="changes-block__form-control">
+				Enter Lastname:
+				<input type="text" class="form-control-input surname">
+			</div>
+			<div class="changes-block__form-control">
+				Enter age:
+				<input type="text" class="form-control-input age">
+			</div>
+			<button class="changes-block__btn btn-addintable">Add</button>
+		</div>
+
+		<div class="changes-block__elem-block delete">
+			<h1>Delete person</h1>
+			<div class="changes-block__form-control">
+				Enter id:
+				<input type="text" class="form-control-input">
+			</div>
+			<button class="changes-block__btn btn-deletefromtable">Delete</button>
+		</div>
+
+		<div class="changes-block__elem-block update">
+			<h1>Update person</h1>
+			<div class="changes-block__form-control">
+				Enter Firstname:
+				<input type="text" class="form-control-input">
+			</div>
+			<div class="changes-block__form-control">
+				Enter Lastname:
+				<input type="text" class="form-control-input">
+			</div>
+			<div class="changes-block__form-control">
+				Enter age:
+				<input type="text" class="form-control-input">
+			</div>
+			<button class="changes-block__btn btn-updatetable">Update</button>
+		</div>
+	</div>
+
+	<script src="src/js/script.js"></script>
+</body>
+</html>
