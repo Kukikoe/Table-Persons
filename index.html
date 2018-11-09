@@ -7,7 +7,13 @@
 </head>
 <body>
 	<div class="main-block">
-		<div class="main-block__buttons">
+		<div class="main-block__buttons-storage">
+			<button class="btn btn-window-st">WindowStorage</button>
+			<button class="btn btn-local-st">LocalStorage</button>
+			<button class="btn btn-indexed-st">IndexedDBStorage</button>
+			<!-- <button class="btn btn-update">Update</button>	 -->
+		</div>
+		<div class="main-block__buttons-crud">
 			<button class="btn btn-read">Read</button>
 			<button class="btn btn-add">Add</button>
 			<button class="btn btn-delete">Delete</button>
@@ -84,5 +90,6 @@
 	</div>
 	<script src="src/libs/dexie/dist/dexie.js"></script> 
 	<script src="src/js/script.js"></script>
+	<script src="src/js/personDAO.js"></script>
 </body>
 </html>

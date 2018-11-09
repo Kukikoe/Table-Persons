@@ -19,11 +19,19 @@ table, th, td {
 	margin-top: 5%;
 }
 
-.main-block__buttons {
+.main-block__buttons-crud, .main-block__buttons-storage {
 	display: flex;
 	flex-direction: column;
 	margin-right: 20px;
 	margin-top: 10px;
+}
+
+.main-block__buttons-storage .btn {
+	background-color: #57c9a5;
+}
+
+.main-block__buttons-storage .btn:hover {
+	background-color: #3d967a;
 }
 
 .btn {
