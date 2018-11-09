@@ -2,48 +2,41 @@ window.onload = function() {
 	init();
 }
 
-let db = new Dexie("dbPersons");
-db.version(1).stores({
-	persons: "++id, name, surname, age"
-});
+
 
 function init() {
 	addEventListeners();
 }
 
 function addEventListeners() {
-	const allBtnsElem = document.querySelector(".main-block");
 	const btnsCrudElem = document.querySelectorAll(".main-block__buttons-crud");	
-	const btnsStorageElem = document.querySelectorAll(".main-block__buttons-storage");
+	const btnsStorageElem = document.querySelectorAll(".main-block__buttons-storage .btn");
 	const btnsInChagesBlockElem = document.querySelectorAll(".changes-block__btn");
 	
 	const chagesBlockElem = document.querySelector(".changes-block");
 
-	const table = new IndexedDB();
 	let idToUpdate;
 	let count = 0;
 
 	for (let i = 0; i < btnsStorageElem.length; i++) {
 		btnsStorageElem[i].addEventListener("click", function(event) {
 			let target = event.target;
+			
+			for (let j = 0; j < btnsStorageElem.length; j++) {
+				btnsStorageElem[j].classList.remove("active");
+			}
+
+			target.classList.add("active");
+			document.querySelector(".main-block__tbody").innerHTML = "";
 
 			if (target.closest(".btn-window-st")) {
 				setWindowStorage();
-				allBtnsElem.querySelector(".main-block__buttons-crud").classList.add("window-storage");
-				allBtnsElem.querySelector(".main-block__buttons-crud").classList.remove("indexedDB");
-				allBtnsElem.querySelector(".main-block__buttons-crud").classList.remove("local-storage");
 			}
 			if (target.closest(".btn-local-st")) {
 				setLocalStorage();
-				allBtnsElem.querySelector(".main-block__buttons-crud").classList.add("local-storage");
-				allBtnsElem.querySelector(".main-block__buttons-crud").classList.remove("indexedDB");
-				allBtnsElem.querySelector(".main-block__buttons-crud").classList.remove("window-storage");
 			}
 			if (target.closest(".btn-indexed-st")) {
-				setIndexedDBStorage();
-				allBtnsElem.querySelector(".main-block__buttons-crud").classList.add("indexedDB");
-				allBtnsElem.querySelector(".main-block__buttons-crud").classList.remove("local-storage");
-				allBtnsElem.querySelector(".main-block__buttons-crud").classList.remove("window-storage");
+				setIndexedDBStorage();	
 			}
 		});
 	}
@@ -54,8 +47,14 @@ function addEventListeners() {
 			//read
 			if (target.closest(".btn-read")) {
 				document.querySelector(".main-block__tbody").innerHTML = "";
-				let array = table.read();
-				array.then(person => addInTable(person));
+				let items = personDAO.readAllPersons();
+
+				if (personDAO instanceof PersonDAOIndexedDB) {
+					items.then(person => addInTable(person));
+				}
+				else {
+					addInTable(items);
+				}
 			}
 			if (target.closest(".btn-add")) {
 				chagesBlockElem.querySelector(".add").classList.toggle("active");
@@ -85,15 +84,19 @@ function addEventListeners() {
 				let surname = parent.querySelector(".surname").value;
 				let age = parent.querySelector(".age").value;
 
+				let personObj = getPersonObj(generateId(), name, surname, age);
+				let items = personDAO.addPerson(personObj);
 
-				let personObj = getPersonObj("", name, surname, age);
-				console.log(personObj)
-				let array = table.add(personObj);
-				console.log(array)
-				array.then(person => table.getPerson(person))
-				.then(person => {
-					addInTable(person);
-				});
+				if (personDAO instanceof PersonDAOIndexedDB) {
+					items.then(id => personDAO.getPerson(id))
+					.then(person => {
+						addInTable(person);
+					});
+				}
+				else {
+					document.querySelector(".main-block__tbody").innerHTML = "";
+					addInTable(items);
+				}
 
 				parent.querySelector(".name").value = parent.querySelector(".surname").value = parent.querySelector(".age").value = "";
 			}
@@ -101,10 +104,8 @@ function addEventListeners() {
 			if (target.closest(".btn-deletefromtable")) {
 				let parent = target.closest(".btn-deletefromtable").parentElement;
 				let id = parent.querySelector(".id-delete").value;
+				personDAO.deletePerson(parseInt(id));
 
-				table.delete(parseInt(id));
-
-				db.persons.where("id").equals(parseInt(id)).delete();
 				deleteFromTable(id);
 				parent.querySelector(".id-delete").value = "";
 			}
@@ -130,40 +131,27 @@ function addEventListeners() {
 				let arrayInputs = chagesBlockElem.querySelector(".update").querySelectorAll(".form-control-input");
 
 				let personObj = getPersonObj(parseInt(idToUpdate), arrayInputs[0].value, arrayInputs[1].value, arrayInputs[2].value);
-                table.update(personObj);
 
-				let arr = [];
-				arr.push(parseInt(idToUpdate));
-				arr.push(arrayInputs[0].value);
-				arr.push(arrayInputs[1].value);
-				arr.push(arrayInputs[2].value);
-
-				db.persons.put({name: arrayInputs[0].value, surname:arrayInputs[1].value, age: arrayInputs[2].value, id: parseInt(idToUpdate)})
+				personDAO.updatePerson(personObj);
 				let currentTr = document.getElementById("tr" + idToUpdate).querySelectorAll("td");
-				for (let i = 1; i < currentTr.length; i++) {
-					currentTr[i].innerHTML = arr[i];
+				let i = 0;
+				for (prop in personObj) {
+					currentTr[i].innerHTML = personObj[prop];
+					i++;
 				}
 			}
 		});
 	}
 }
-
-function IndexedDB() {
-	this.add = function(person) {
-		return db.persons.add({name: person.name, surname: person.surname, age: person.age});
-	};
-	this.getPerson = function(id) {
-		return db.persons.where("id").equals(id).toArray();
+let count = 0;
+function generateId() {
+	if (personDAO instanceof PersonDAOLocalStorage) { 
+		count = JSON.parse(localStorage.getItem('PersonList')).length || 0;
 	}
-	this.read = function() {
-		return db.persons.toArray();
-	};
-	this.update = function(person) {
-		db.persons.put({name: person.name, surname: person.surname, age: person.age, id: person.id});
-	};
-	this.delete = function(id) {
-		db.persons.where("id").equals(id).delete();
-	};
+	if (personDAO instanceof PersonDAOIndexedDB) { 
+		return "";
+	}
+	return count++;
 }
 
 function getPersonObj(id, name, surname, age) {
@@ -182,25 +170,26 @@ function deleteFromTable(id) {
 	currentTr.remove();
 }
 
-function addInTable(personObj) {
-	console.log(personObj[0])
-	for (let i = 0; i < personObj.length; i++) {
-	let tr = document.createElement("tr");
-	tr.id = "tr" + personObj[i].id;
-	tr.class = "table-tr";
+function addInTable(array) {
 
-	//need to delete id from obj because in db id puts in the end of array
-	let td = document.createElement("td");
-	td.innerHTML = personObj[i].id;
-	tr.appendChild(td);
-	delete personObj[i].id;
+	for (let i = 0; i < array.length; i++) {
+		let tr = document.createElement("tr");
+		tr.id = "tr" + array[i].id;
+		tr.class = "table-tr";
 
-	for (let props in personObj[i]) {
-		let td = document.createElement("td");
-		td.innerHTML = personObj[i][props];
-		tr.appendChild(td);
+		renderTD(tr, array[i].id);
+
+		for (let props in array[i]) {
+			if(props !== "id") {
+				renderTD(tr, array[i][props]);
+			}
+		}
+		document.querySelector(".main-block__tbody").appendChild(tr);
 	}
-	document.querySelector(".main-block__tbody").appendChild(tr);
-}
 }
 
+function renderTD(tr, text) {
+	let td = document.createElement("td");
+	td.innerHTML = text;
+	tr.appendChild(td);
+}

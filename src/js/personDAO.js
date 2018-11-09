@@ -1,4 +1,8 @@
 let personDAO;
+let db = new Dexie("dbPersons");
+db.version(1).stores({
+	persons: "++id, name, surname, age"
+});
 
 function setWindowStorage() {
 	personDAO = new PersonDAOWindow;
@@ -18,22 +22,22 @@ function setIndexedDBStorage() {
 
 function setServerStorage() {}
 
-
-let personList = null;
 class PersonDAOWindow {
 	constructor() {
 		if (PersonDAOWindow.instance) return PersonDAOWindow.instance;
 		else {
 			PersonDAOWindow.instance = this;
-			personList = [];
+			this.personList = [];
 		}
 	}
 
-	readAllPersons() { return personList; }
-	addPerson(person) { return personList.push(person); }
-	getPerson(id) { return personList[id]; }
-	updatePerson(person) { return personList[person.id] = person; }
-	deletePerson(id) { delete personList[id]; }
+	readAllPersons() { return this.personList; }
+	addPerson(person) { 
+		this.personList = this.personList.concat(person);
+		return this.personList; }
+	getPerson(id) { return this.personList[id]; }
+	updatePerson(person) { return this.personList[person.id] = person; }
+	deletePerson(id) { delete this.personList[id]; }
 }
 
 class PersonDAOLocalStorage {
@@ -41,25 +45,30 @@ class PersonDAOLocalStorage {
 		if (PersonDAOLocalStorage.instance) return PersonDAOLocalStorage.instance;
 		else {
 			PersonDAOLocalStorage.instance = this;
+			this.personList = [];
 		}
 	}
 
-	readAllPersons() { return JSON.parse(localStorage.getItem('PersonList')); }
+	readAllPersons() { 
+		return JSON.parse(localStorage.getItem('PersonList')) || [];
+	}
 	addPerson(person) {
-		const personList = JSON.parse(localStorage.getItem('PersonList'));
-		personList.push(person);
-		localStorage.setItem('PersonList', JSON.stringify(personList)); 
+		this.personList = this.readAllPersons();
+		this.personList.push(person);
+		localStorage.setItem('PersonList', JSON.stringify(this.personList)); 
+		return this.personList;
 	}
 	getPerson(id) { 
-		const personList = JSON.parse(localStorage.getItem('PersonList'));
-		return personList[id]; 
+		this.personList = this.readAllPersons();
+		return this.personList[id]; 
 	}
 	updatePerson(person) {		
-		const personList = JSON.parse(localStorage.getItem('PersonList'));
-		personList[person.id] = person;
-		localStorage.setItem('PersonList', JSON.stringify(personList)); 
+		this.personList = this.readAllPersons();
+		this.personList[person.id] = person;
+		localStorage.setItem('PersonList', JSON.stringify(this.personList)); 
+		return this.personList;
 	}
-	deletePerson(id) { delete personList[id]; }
+	deletePerson(id) { delete this.personList[id]; }
 }
 
 class PersonDAOIndexedDB {

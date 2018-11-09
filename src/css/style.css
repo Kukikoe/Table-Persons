@@ -34,6 +34,10 @@ table, th, td {
 	background-color: #3d967a;
 }
 
+.main-block__buttons-storage .btn.active{
+	background-color: #3d967a;
+}
+
 .btn {
 	margin-top: 8px;
 	padding: 12px;
