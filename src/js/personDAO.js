@@ -34,10 +34,22 @@ class PersonDAOWindow {
 	readAllPersons() { return this.personList; }
 	addPerson(person) { 
 		this.personList = this.personList.concat(person);
-		return this.personList; }
-	getPerson(id) { return this.personList[id]; }
-	updatePerson(person) { return this.personList[person.id] = person; }
-	deletePerson(id) { delete this.personList[id]; }
+		return this.personList;
+	}
+	getPerson(id) { 
+		return this.personList.filter(person => person.id === id); 
+	}
+	updatePerson(person) { 
+		return this.personList = this.personList.map(function(personObj, i) {
+			if(personObj.id === person.id) {
+				return person;
+			}
+			return personObj;
+		});
+	}
+	deletePerson(id) { 
+		this.personList = this.personList.filter(person => person.id !== id);
+	}
 }
 
 class PersonDAOLocalStorage {
@@ -60,15 +72,24 @@ class PersonDAOLocalStorage {
 	}
 	getPerson(id) { 
 		this.personList = this.readAllPersons();
-		return this.personList[id]; 
+		return this.personList.filter(person => person.id === id); 
 	}
 	updatePerson(person) {		
 		this.personList = this.readAllPersons();
-		this.personList[person.id] = person;
+		this.personList = this.personList.map(function(personObj, i) {
+			if(personObj.id === person.id) {
+				return person;
+			}
+			return personObj;
+		});
 		localStorage.setItem('PersonList', JSON.stringify(this.personList)); 
 		return this.personList;
 	}
-	deletePerson(id) { delete this.personList[id]; }
+	deletePerson(id) { 
+		this.personList = this.readAllPersons();
+		this.personList = this.personList.filter(person => person.id !== id);
+		localStorage.setItem('PersonList', JSON.stringify(this.personList)); 
+	}
 }
 
 class PersonDAOIndexedDB {
